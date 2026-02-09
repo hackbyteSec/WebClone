@@ -12,7 +12,7 @@ WebClone 是由 [黑客字节 HackByte.io](https://hackbyte.io) 开发的免费�
 
 🌐 **在线体验**：[wget.hackbyte.io](https://wget.hackbyte.io)
 
-## ✨ 核心特性
+## ✨ 上面有个A开头的压缩包，更新了一些东西，直接下载，上传到根目录运行即可，或者使用宝塔面板的用户，可以在宝塔网站管理、python项目中创建这个项目，基本上一分钟之内可以部署完成，如果有不会的用户可以在社区进行交流。
 
 - 🎯 **一键下载** - 输入网址即可获取完整网站源码
 - 📦 **自动打包** - 自动识别并下载 HTML/CSS/JS/图片等资源
@@ -182,3 +182,4 @@ port = int(os.environ.get('PORT', 8000))  # 改为你想要的端口
 ---
 
 <p align="center">Made with ❤️ by <a href="https://hackbyte.io">HackByte.io</a></p>
+
