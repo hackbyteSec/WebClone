@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebClone扒站工具 | 在线网站源码下载器 - 黑客字节</title>
+    <meta name="keywords" content="扒站工具,网站源码下载,在线整站克隆,网页资源提取,HTML抓取器,前端仿站助手,网站备份工具,静态资源打包,在线 wget,网页镜像">
+    <meta name="description" content="WebClone是一款简单易用的在线扒站工具。无需安装软件，粘贴网址即可快速获取网站完整源码，自动打包HTML、CSS、JS、图片等资源。支持多线程加速、Canvas动画资源识别，适合前端开发学习与网站备份使用。">
+    <meta name="author" content="黑客字节 HackByte.io">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / 社交媒体分享 -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WebClone - 轻松获取网站完整源码">
+    <meta property="og:description" content="粘贴链接，一键打包下载网站全部资源。前端开发、网站备份的实用工具。">
+    <meta property="og:url" content="https://wget.hackbyte.io">
+    <meta property="og:site_name" content="黑客字节在线扒站">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:image" content="https://hackbyte.io/images/webclone-og.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WebClone扒站工具 - 在线网站源码下载">
+    <meta name="twitter:description" content="无需安装，粘贴网址即可快速获取网站完整源码，自动打包HTML、CSS、JS、图片等资源。">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://wget.hackbyte.io/">
+    
+    <!-- 结构化数据 Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "WebClone扒站工具",
+        "url": "https://wget.hackbyte.io",
+        "description": "WebClone是一款简单易用的在线扒站工具。无需安装软件，粘贴网址即可快速获取网站完整源码。",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CNY"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "黑客字节",
+            "url": "https://hackbyte.io"
+        },
+        "featureList": [
+            "一键下载网站完整源码",
+            "自动打包HTML、CSS、JS、图片",
+            "支持多线程加速下载",
+            "Canvas动画资源识别",
+            "无需注册登录"
+        ]
+    }
+    </script>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://hackbyte.io/images/hackbytefavicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://hackbyte.io/images/hackbytefavicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+
+<div class="light-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="top-bar">
+    <div class="logo">WebClone</div>
+    <div class="status-bar">
+        <span class="status-time" id="statusTime">00:00 AM</span>
+        <div class="status-divider"></div>
+        <span class="status-ip" id="statusIp">Loading...</span>
+        <div class="player-icon">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+    <div class="social-icons">
+        <a href="#" title="GitHub 项目已开源">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+     
+    </div>
+</div>
+
+<main class="main-content" role="main">
+    <article itemscope itemtype="https://schema.org/SoftwareApplication">
+        <h1 class="visually-hidden" itemprop="name">WebClone在线扒站工具 - 免费网站源码下载器</h1>
+        <p class="visually-hidden" itemprop="description">输入网址，一键下载网站完整源码。支持HTML、CSS、JavaScript、图片等资源自动打包，适合前端开发学习与网站备份。</p>
+    
+    <div class="input-container">
+        <div class="input-wrapper">
+            <input type="text" class="input-field" id="website" placeholder="https://Domain.com " maxlength="500" autocomplete="off">
+            <button class="btn" id="download" disabled>开始下载</button>
+        </div>
+        <div class="alert" id="alertMessage">请输入有效的网址</div>
+        
+        <div class="progress-area" id="progressArea">
+            <div class="progress-header">
+                <div class="spinner" id="spinner"></div>
+                <span class="progress-text" id="progressText">正在连接...</span>
+            </div>
+            
+            <div class="stats" id="statsGrid" style="display:none;">
+                <div class="stat">
+                    <div class="stat-value" id="nFiles">0</div>
+                    <div class="stat-label">文件</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="nPages">0</div>
+                    <div class="stat-label">页面</div>
+                </div>
+            </div>
+            
+            <div class="log-console" id="log">
+                <div class="log-header">
+                    <span class="log-dot"></span>
+                    日志
+                </div>
+                <div class="log-content" id="logContent"></div>
+            </div>
+        </div>
+        
+        <center>
+            <button class="btn btn-download" id="downloadBtn">下载 ZIP</button>
+        </center>
+    </div>
+    </article>
+</main>
+
+<footer class="footer">
+    <div class="footer-links">
+        <a href="https://wget.hackbyte.io" class="home-link">在线扒站系统 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+        <a href="https://hackbyte.io" target="_blank" rel="noopener">社区交流 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+        <a href="https://hackbyte.io/tools" target="_blank" rel="noopener">其它工具 <svg viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></a>
+        <span class="footer-desc">黑客字节发布的免费的在线网站镜像下载工具，无需登录全球领先的在线扒站平台。</span>
+    </div>
+    <div class="footer-right">
+        <span class="footer-copyright">© 2026 黑客字节.HackByte.io</span>
+        <div class="footer-icons">
+            <a href="https://hackbyte.io"><svg t="1769416319977" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8518" width="20" height="20"><path d="M883.170163 481.367521H110.993007" fill="#bfbfbf" p-id="8519"></path><path d="M110.993007 357.246309h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8520"></path><path d="M110.993007 376.34188h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8521"></path><path d="M110.993007 395.437451h772.177156v19.095572H110.993007z" fill="#bfbfbf" p-id="8522"></path><path d="M110.993007 414.533023h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8523"></path><path d="M110.993007 433.628594h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8524"></path><path d="M110.993007 452.724165h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8525"></path><path d="M110.993007 471.819736h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8526"></path><path d="M110.993007 490.915307h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8527"></path><path d="M110.993007 510.010878h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8528"></path><path d="M110.993007 529.106449h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8529"></path><path d="M110.993007 548.20202h772.177156v19.095571H110.993007zM110.993007 586.393162h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8530"></path><path d="M110.993007 567.297591h772.177156v19.095571H110.993007z" fill="#bfbfbf" p-id="8531"></path><path d="M200.503497 0v1024" fill="#bfbfbf" p-id="8532"></path><path d="M76.382284 0h19.095571v1024H76.382284z" fill="#bfbfbf" p-id="8533"></path><path d="M95.477855 0h19.095572v1024H95.477855z" fill="#bfbfbf" p-id="8534"></path><path d="M114.573427 0h19.095571v1024H114.573427z" fill="#bfbfbf" p-id="8535"></path><path d="M133.668998 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8536"></path><path d="M152.764569 0H171.86014v1024h-19.095571z" fill="#bfbfbf" p-id="8537"></path><path d="M171.86014 0h19.095571v1024H171.86014z" fill="#bfbfbf" p-id="8538"></path><path d="M190.955711 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8539"></path><path d="M210.051282 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8540"></path><path d="M229.146853 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8541"></path><path d="M248.242424 0H267.337995v1024h-19.095571z" fill="#bfbfbf" p-id="8542"></path><path d="M267.337995 0h19.095571v1024H267.337995zM305.529138 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8543"></path><path d="M286.433566 0h19.095572v1024h-19.095572z" fill="#bfbfbf" p-id="8544"></path><path d="M823.496503 0v1024" fill="#bfbfbf" p-id="8545"></path><path d="M699.375291 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8546"></path><path d="M718.470862 0h19.095572v1024h-19.095572z" fill="#bfbfbf" p-id="8547"></path><path d="M737.566434 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8548"></path><path d="M756.662005 0h19.095571v1024H756.662005z" fill="#bfbfbf" p-id="8549"></path><path d="M775.757576 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8550"></path><path d="M794.853147 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8551"></path><path d="M813.948718 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8552"></path><path d="M833.044289 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8553"></path><path d="M852.13986 0h19.095571v1024H852.13986z" fill="#bfbfbf" p-id="8554"></path><path d="M871.235431 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8555"></path><path d="M890.331002 0h19.095571v1024h-19.095571zM928.522145 0h19.095571v1024h-19.095571z" fill="#bfbfbf" p-id="8556"></path><path d="M909.426573 0h19.095572v1024h-19.095572z" fill="#bfbfbf" p-id="8557"></path></svg></a>
+        </div>
+    </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+
+</body>
+</html>

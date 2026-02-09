@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据去重工具 | 在线数据去重 - 黑客字节</title>
+    <link rel="icon" href="https://hackbyte.io/images/hackbytefavicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://hackbyte.io/images/hackbytefavicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            color: #1d1d1f;
+            overflow-x: hidden;
+            overflow-y: auto !important;
+            display: block !important;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 60px 20px;
+            background: rgba(30, 30, 35, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .dedupe-logo {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 12px 32px rgba(0, 122, 255, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .dedupe-logo::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.2), rgba(88, 86, 214, 0.2));
+            z-index: -1;
+        }
+        
+        .dedupe-logo svg {
+            width: 36px;
+            height: 36px;
+            fill: #fff;
+        }
+        
+        h1 {
+            font-size: 40px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+        
+        .subtitle span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .subtitle svg {
+            width: 16px;
+            height: 16px;
+            fill: #6366f1;
+        }
+        
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .badge {
+            padding: 8px 16px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #a5b4fc;
+        }
+        
+        .badge.purple {
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+        }
+        
+        .badge.green {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        
+        .card {
+            background: rgba(30, 30, 35, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .card-title .icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .card-title.blue .icon { fill: #60a5fa; }
+        .card-title.green .icon { fill: #4ade80; }
+        .card-title.orange .icon { fill: #fb923c; }
+        
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 50px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .upload-zone:hover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            fill: rgba(255, 255, 255, 0.4);
+            margin: 0 auto 16px;
+        }
+        
+        .upload-text {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .upload-hint {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        #fileInput { display: none; }
+        
+        .options {
+            margin-top: 20px;
+            display: flex;
+            gap: 24px;
+        }
+        
+        .options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .options input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #6366f1;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 600;
+            color: #60a5fa;
+        }
+        
+        .stat-number.green { color: #4ade80; }
+        .stat-number.red { color: #f87171; }
+        
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+        
+        .field-selector {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .field-selector strong {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .field-selector label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 16px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+        
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: transparent;
+        }
+        
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+        
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #6366f1;
+            color: #fff;
+        }
+        
+        .btn-group .btn-primary {
+            background: #6366f1;
+            color: #fff;
+        }
+        
+        .btn-group .btn-primary:hover {
+            background: #4f46e5;
+            transform: scale(1.02);
+        }
+        
+        .btn-group .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-group .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            fill: rgba(255, 255, 255, 0.2);
+            margin-bottom: 16px;
+        }
+        
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .info-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        .carrier-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .carrier-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .carrier-option input[type="radio"] {
+            display: none;
+        }
+        
+        .carrier-label {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s;
+        }
+        
+        .carrier-option input[type="radio"]:checked + .carrier-label {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            color: #a5b4fc;
+        }
+        
+        .carrier-label:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .carrier-label.mobile {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        .carrier-option input[type="radio"]:checked + .carrier-label.mobile {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #86efac;
+        }
+        
+        .carrier-label.unicom {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .carrier-option input[type="radio"]:checked + .carrier-label.unicom {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+        
+        .carrier-label.telecom {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .carrier-option input[type="radio"]:checked + .carrier-label.telecom {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
+
+        /* ========== 导航栏和底部样式 ========== */
+        
+        .light-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+        }
+        
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+            top: 50%;
+            left: calc(50% - 80px);
+            transform: translate(-50%, -50%);
+            animation: float1 8s ease-in-out infinite;
+        }
+        
+        .orb-2 {
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+            top: calc(50% - 50px);
+            left: calc(50% + 60px);
+            transform: translate(-50%, -50%);
+            animation: float2 10s ease-in-out infinite;
+        }
+        
+        .orb-3 {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            top: calc(50% + 60px);
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: float3 12s ease-in-out infinite;
+        }
+        
+        @keyframes float1 {
+            0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
+            25% { transform: translate(-50%, -50%) translate(60px, -40px); }
+            50% { transform: translate(-50%, -50%) translate(-40px, 30px); }
+            75% { transform: translate(-50%, -50%) translate(30px, 50px); }
+        }
+        
+        @keyframes float2 {
+            0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
+            25% { transform: translate(-50%, -50%) translate(-50px, 40px); }
+            50% { transform: translate(-50%, -50%) translate(50px, -30px); }
+            75% { transform: translate(-50%, -50%) translate(-30px, -50px); }
+        }
+        
+        @keyframes float3 {
+            0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
+            25% { transform: translate(-50%, -50%) translate(40px, 50px); }
+            50% { transform: translate(-50%, -50%) translate(-60px, -20px); }
+            75% { transform: translate(-50%, -50%) translate(20px, -40px); }
+        }
+        
+        .top-bar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+        
+        .top-bar .logo {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            color: #fff;
+            opacity: 0.9;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-right: 20px;
+            width: auto;
+            height: auto;
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(30, 30, 35, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 8px 20px;
+        }
+        
+        .status-time {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-divider {
+            width: 1px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-ip {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: monospace;
+        }
+        
+        .player-icon {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .player-icon .bar {
+            width: 3px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 2px;
+            animation: wave 0.8s ease-in-out infinite;
+        }
+        
+        .player-icon .bar:nth-child(1) { animation-delay: 0s; height: 8px; }
+        .player-icon .bar:nth-child(2) { animation-delay: 0.1s; height: 16px; }
+        .player-icon .bar:nth-child(3) { animation-delay: 0.2s; height: 12px; }
+        .player-icon .bar:nth-child(4) { animation-delay: 0.3s; height: 18px; }
+        .player-icon .bar:nth-child(5) { animation-delay: 0.4s; height: 10px; }
+        
+        @keyframes wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.5); }
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .social-icons a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .social-icons a:hover {
+            color: #fff;
+        }
+        
+        .social-icons svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 32px;
+            background: #171717;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: #b1b1b1;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .footer-links a svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+        
+        .footer-links a.home-link {
+            background: linear-gradient(90deg, #ff6b6b, #ffa502, #ff6b6b, #ffa502);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientFlow 3s ease-in-out infinite;
+        }
+        
+        .footer-links a.home-link svg {
+            fill: #ffa502;
+        }
+        
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .footer-copyright {
+            color: #a3a3a3;
+            font-size: 11px;
+            letter-spacing: 0.3px;
+        }
+        
+        .footer-icons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .footer-icons a {
+            color: #ababab;
+        }
+        
+        .footer-icons svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .footer-desc {
+            color: #888;
+            font-size: 11px;
+            margin-left: 8px;
+            padding-left: 16px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 16px 20px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .social-icons { gap: 12px; }
+            .footer { padding: 12px 20px; }
+            .footer-desc { display: none; }
+        }
+        
+        @media (max-width: 640px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px;
+            }
+            .top-bar .logo {
+                font-size: 12px;
+                margin-right: 0;
+            }
+            .status-bar {
+                width: 100%;
+                justify-content: space-between;
+                padding: 8px 16px;
+            }
+            .social-icons { display: none; }
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 14px 16px;
+            }
+            .footer-links {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .footer-links a { font-size: 10px; }
+            .footer-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .footer-copyright { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="light-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="top-bar">
+    <div class="logo">WebClone</div>
+    <div class="status-bar">
+        <span class="status-time" id="statusTime">00:00 AM</span>
+        <div class="status-divider"></div>
+        <span class="status-ip" id="statusIp">Loading...</span>
+        <div class="player-icon">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+    <div class="social-icons">
+        <a href="#" title="GitHub 项目已开源">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+    </div>
+</div>
+
+    <div class="container">
+        
+        <div class="main-grid">
+            <div class="left-column">
+                <div class="card">
+                    <div class="card-title blue">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+                        运营商分类
+                    </div>
+                    <div class="carrier-selector">
+                        <label class="carrier-option">
+                            <input type="radio" name="carrier" value="all" checked>
+                            <span class="carrier-label">全部</span>
+                        </label>
+                        <label class="carrier-option">
+                            <input type="radio" name="carrier" value="mobile">
+                            <span class="carrier-label mobile">移动</span>
+                        </label>
+                        <label class="carrier-option">
+                            <input type="radio" name="carrier" value="unicom">
+                            <span class="carrier-label unicom">联通</span>
+                        </label>
+                        <label class="carrier-option">
+                            <input type="radio" name="carrier" value="telecom">
+                            <span class="carrier-label telecom">电信</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title blue">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                        上传文件
+                    </div>
+                    <div class="upload-zone" id="dropZone">
+                        <svg class="upload-icon" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                        <div class="upload-text">点击或拖拽文件到此处</div>
+                        <div class="upload-hint">支持 .txt / .csv / .xlsx 格式</div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".txt,.csv,.xlsx">
+                    
+                    <div class="options">
+                        <label><input type="checkbox" id="skipEmpty" checked> 跳过空值</label>
+                        <label><input type="checkbox" id="trimSpaces" checked> 去除空格</label>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title orange">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        使用说明
+                    </div>
+                    <p class="info-text">
+                        支持三种格式：TXT（name/mobile格式）、CSV（逗号分隔）、HTML（表格数据）。上传后自动识别字段，可选择去重依据，支持导出 HTML 或 CSV 文件。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title green">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-9-7h4v2h-4z"/></svg>
+                    处理结果
+                </div>
+                
+                <div class="stats-row" id="statsArea" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-number" id="originalCount">0</div>
+                        <div class="stat-label">原始数据</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number green" id="uniqueCount">0</div>
+                        <div class="stat-label">去重后</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number red" id="duplicateCount">0</div>
+                        <div class="stat-label">重复项</div>
+                    </div>
+                </div>
+                
+                <div class="field-selector" id="fieldSelector" style="display: none;">
+                    <strong>去重依据字段</strong>
+                    <div id="fieldCheckboxes"></div>
+                </div>
+                
+                <div class="table-container" id="tableContainer">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"/></svg>
+                        <p>上传文件后显示数据</p>
+                    </div>
+                </div>
+                
+                <div class="btn-group" id="btnGroup" style="display: none;">
+                    <button class="btn btn-primary" onclick="exportTXT()">导出 TXT</button>
+                    <button class="btn btn-secondary" onclick="exportHTML()">导出 HTML</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var allData = [], headers = [], uniqueData = [];
+        var dropZone = document.getElementById('dropZone');
+        var fileInput = document.getElementById('fileInput');
+
+        dropZone.onclick = function() { fileInput.click(); };
+        dropZone.ondragover = function(e) { e.preventDefault(); dropZone.style.borderColor = '#007aff'; dropZone.style.background = '#f0f7ff'; };
+        dropZone.ondragleave = function() { dropZone.style.borderColor = ''; dropZone.style.background = ''; };
+        dropZone.ondrop = function(e) { e.preventDefault(); dropZone.style.borderColor = ''; dropZone.style.background = ''; if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); };
+        fileInput.onchange = function(e) { if (e.target.files[0]) processFile(e.target.files[0]); };
+
+        function processFile(file) {
+            var ext = file.name.split('.').pop().toLowerCase();
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var content = e.target.result;
+                if (ext === 'txt') parseTXT(content);
+                else if (ext === 'csv') parseCSV(content);
+                else if (ext === 'xlsx') parseXLSX(file);
+                else { alert('不支持的文件格式，请上传 txt/csv/xlsx'); }
+            };
+            if (ext === 'xlsx') {
+                parseXLSX(file);
+            } else {
+                reader.readAsText(file, 'UTF-8');
+            }
+        }
+
+        function parseTXT(content) {
+            var lines = content.split('\n'); headers = ['姓名', '电话']; allData = [];
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var nameMatch = line.match(/"name":"([^"]*)"/);
+                var mobileMatch = line.match(/"moBile":"(\d+)"/);
+                if (nameMatch && mobileMatch) allData.push({ '姓名': nameMatch[1].trim(), '电话': mobileMatch[1] });
+            }
+            setupFieldSelector(); performDedupe();
+        }
+
+        function parseCSV(content) {
+            var lines = content.split('\n'); if (lines.length === 0) return;
+            headers = lines[0].split(',').map(function(h) { return h.trim().replace(/"/g, ''); }); allData = [];
+            for (var i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                var values = lines[i].split(','); var obj = {};
+                for (var j = 0; j < headers.length; j++) obj[headers[j]] = (values[j] || '').trim().replace(/"/g, '');
+                allData.push(obj);
+            }
+            setupFieldSelector(); performDedupe();
+        }
+
+        function parseXLSX(file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                var jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                if (jsonData.length === 0) { alert('Excel文件为空！'); return; }
+                headers = jsonData[0].map(function(h) { return String(h || '').trim(); });
+                allData = [];
+                for (var i = 1; i < jsonData.length; i++) {
+                    var row = jsonData[i];
+                    if (!row || row.length === 0) continue;
+                    var obj = {};
+                    for (var j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = String(row[j] || '').trim();
+                    }
+                    allData.push(obj);
+                }
+                setupFieldSelector(); performDedupe();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function setupFieldSelector() {
+            var container = document.getElementById('fieldCheckboxes'); var html = '';
+            for (var i = 0; i < headers.length; i++) {
+                var checked = i < 2 ? 'checked' : '';
+                html += '<label><input type="checkbox" class="field-cb" value="' + headers[i] + '" ' + checked + '> ' + headers[i] + '</label>';
+            }
+            container.innerHTML = html;
+            document.getElementById('fieldSelector').style.display = 'block';
+            var cbs = document.querySelectorAll('.field-cb');
+            for (var j = 0; j < cbs.length; j++) cbs[j].onchange = performDedupe;
+        }
+
+        function performDedupe() {
+            var skipEmpty = document.getElementById('skipEmpty').checked;
+            var trimSpaces = document.getElementById('trimSpaces').checked;
+            var cbs = document.querySelectorAll('.field-cb:checked'); var selectedFields = [];
+            for (var i = 0; i < cbs.length; i++) selectedFields.push(cbs[i].value);
+            if (selectedFields.length === 0) { alert('请至少选择一个字段！'); return; }
+            var seen = {}; uniqueData = [];
+            for (var j = 0; j < allData.length; j++) {
+                var row = allData[j];
+                if (skipEmpty) { var hasEmpty = false; for (var k = 0; k < selectedFields.length; k++) { if (!row[selectedFields[k]]) { hasEmpty = true; break; } } if (hasEmpty) continue; }
+                var keyParts = [];
+                for (var m = 0; m < selectedFields.length; m++) { var val = row[selectedFields[m]] || ''; if (trimSpaces) val = val.trim(); keyParts.push(val); }
+                var key = keyParts.join('|');
+                if (!seen[key]) { seen[key] = true; uniqueData.push(row); }
+            }
+            displayResults(selectedFields);
+        }
+
+        function displayResults(selectedFields) {
+            document.getElementById('statsArea').style.display = 'grid';
+            document.getElementById('btnGroup').style.display = 'flex';
+            document.getElementById('originalCount').textContent = allData.length;
+            document.getElementById('uniqueCount').textContent = uniqueData.length;
+            document.getElementById('duplicateCount').textContent = allData.length - uniqueData.length;
+            var headHtml = '<tr>'; for (var i = 0; i < selectedFields.length; i++) headHtml += '<th>' + selectedFields[i] + '</th>'; headHtml += '</tr>';
+            var bodyHtml = '';
+            for (var j = 0; j < uniqueData.length; j++) { bodyHtml += '<tr>'; for (var k = 0; k < selectedFields.length; k++) bodyHtml += '<td>' + (uniqueData[j][selectedFields[k]] || '') + '</td>'; bodyHtml += '</tr>'; }
+            document.getElementById('tableContainer').innerHTML = '<table><thead>' + headHtml + '</thead><tbody>' + bodyHtml + '</tbody></table>';
+        }
+
+        function exportHTML() {
+            var cbs = document.querySelectorAll('.field-cb:checked'); var selectedFields = [];
+            for (var i = 0; i < cbs.length; i++) selectedFields.push(cbs[i].value);
+            var rows = ''; for (var j = 0; j < uniqueData.length; j++) { rows += '<tr>'; for (var k = 0; k < selectedFields.length; k++) rows += '<td>' + (uniqueData[j][selectedFields[k]] || '') + '</td>'; rows += '</tr>\n'; }
+            var headerCells = ''; for (var h = 0; h < selectedFields.length; h++) headerCells += '<th>' + selectedFields[h] + '</th>';
+            var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>去重结果</title>\n<style>\nbody{font-family:sans-serif;padding:20px;background:#f5f5f7}\ntable{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}\nth,td{padding:12px 16px;text-align:left}\nth{background:#f5f5f7;color:#86868b;font-size:12px;text-transform:uppercase}\ntd{border-bottom:1px solid #f0f0f0}\ntr:hover td{background:#fafafa}\nh2{margin-bottom:20px;color:#1d1d1f}\n</style>\n</head>\n<body>\n<h2>去重结果 (共' + uniqueData.length + '条)</h2>\n<table>\n<thead><tr>' + headerCells + '</tr></thead>\n<tbody>\n' + rows + '</tbody>\n</table>\n</body>\n</html>';
+            downloadFile(html, 'result.html', 'text/html');
+        }
+
+        function exportTXT() {
+            var cbs = document.querySelectorAll('.field-cb:checked'); var selectedFields = [];
+            for (var i = 0; i < cbs.length; i++) selectedFields.push(cbs[i].value);
+            var txt = '';
+            for (var j = 0; j < uniqueData.length; j++) {
+                var row = [];
+                for (var k = 0; k < selectedFields.length; k++) {
+                    row.push(uniqueData[j][selectedFields[k]] || '');
+                }
+                txt += row.join('\t') + '\n';
+            }
+            downloadFile('\uFEFF' + txt, 'result.txt', 'text/plain');
+        }
+
+        function downloadFile(content, filename, type) {
+            var blob = new Blob([content], { type: type + ';charset=utf-8' });
+            var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+        }
+
+        document.getElementById('skipEmpty').onchange = function() { if (allData.length) performDedupe(); };
+        document.getElementById('trimSpaces').onchange = function() { if (allData.length) performDedupe(); };
+
+        // 更新时间和IP显示
+        function updateTime() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12; hours = hours ? hours : 12;
+            var timeStr = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
+            var el = document.getElementById('statusTime');
+            if (el) el.textContent = timeStr;
+        }
+        updateTime(); setInterval(updateTime, 1000);
+
+        fetch('https://api.ipify.org?format=json').then(function(r) { return r.json(); }).then(function(data) {
+            var el = document.getElementById('statusIp');
+            if (el) el.textContent = data.ip;
+        }).catch(function() {
+            var el = document.getElementById('statusIp');
+            if (el) el.textContent = '127.0.0.1';
+        });
+    </script>
+
+</body>
+</html>

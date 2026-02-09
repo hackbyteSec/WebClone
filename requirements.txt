@@ -1,0 +1,16 @@
+# 在线扒站工具 - Python Flask 版本 (纯原生优化版)
+# 仅依赖Flask和BeautifulSoup，HTTP请求使用Python内置urllib
+
+flask>=2.3.0
+flask-socketio>=5.3.0
+simple-websocket>=0.5.0
+beautifulsoup4>=4.12.0
+gunicorn>=21.0.0
+eventlet>=0.33.0
+
+# 以下为Python内置库，无需安装:
+# - urllib.request (HTTP请求)
+# - concurrent.futures (ThreadPoolExecutor并发)
+# - threading (Semaphore并发控制)
+# - ssl (HTTPS支持)
+# - socket (网络超时处理)
