@@ -1,6 +1,6 @@
-# WebClone - 在线扒站工具
+# WebClone - 在线扒站工具(一键获取网站源码)
 
-> 🚀 轻量级在线网站源码下载工具，基于 Python Flask + WebSocket 实现
+> 🚀 轻量级在线网站源码下载工具，基于 Python Flask + WebSocket 实现；扒站工具,网站源码下载,在线整站克隆,网页资源提取,HTML抓取器,前端仿站助手,网站备份工具,静态资源打包,在线 wget,网页镜像...
 
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/flask-2.3%2B-green.svg)](https://flask.palletsprojects.com/)
@@ -182,4 +182,5 @@ port = int(os.environ.get('PORT', 8000))  # 改为你想要的端口
 ---
 
 <p align="center">Made with ❤️ by <a href="https://hackbyte.io">HackByte.io</a></p>
+
 
