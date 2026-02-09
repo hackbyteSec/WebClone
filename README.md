@@ -25,6 +25,9 @@ WebClone 是由 [黑客字节 HackByte.io](https://hackbyte.io) 开发的免费�
 
 ## 🎬 功能演示
 
+<img width="2856" height="1686" alt="20260209-152349" src="https://github.com/user-attachments/assets/3154401f-5bd2-4f49-bef4-9bb2740a21ac" />
+
+
 1. **输入网址** - 粘贴目标网站URL
 2. **实时进度** - 查看下载进度和文件数量
 3. **一键打包** - 自动生成 ZIP 压缩包下载
@@ -182,5 +185,6 @@ port = int(os.environ.get('PORT', 8000))  # 改为你想要的端口
 ---
 
 <p align="center">Made with ❤️ by <a href="https://hackbyte.io">HackByte.io</a></p>
+
 
 
